@@ -1,0 +1,32 @@
+{
+  "name": "@a4t1/mappack-02",
+  "version": "1.0.0",
+  "description": "Second MOHAA map pack of A4T1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "node node_modules/@a4t1/pak3r/index pack"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/a4t1/mappack-02.git"
+  },
+  "keywords": [
+    "mohaa",
+    "a4t1",
+    "skin"
+  ],
+  "author": "Luke Alzagesi <lucablackdragon@hotmail.com>",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/a4t1/mappack-02/issues"
+  },
+  "homepage": "https://github.com/a4t1/mappack-02#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@a4t1/pak3r": "^1.0.2"
+  }
+}

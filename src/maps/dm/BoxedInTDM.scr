@@ -1,0 +1,49 @@
+// Boxed In - TDM
+// ARCHITECTURE: JollyGG (Alex Kramer)
+// SCRIPTING: JollyGG (Alex Kramer)
+
+// Extended Gametypes added by Mefy (mef123@geocities.com)
+
+main:
+	setcvar "g_obj_alliedtext1" "Boxed In" 
+	setcvar "g_obj_alliedtext2" "TDM"
+	setcvar "g_obj_alliedtext3" "by JollyGG"
+	setcvar "g_obj_axistext1" ""
+	setcvar "g_obj_axistext2" ""
+	setcvar "g_obj_axistext3" ""
+	setcvar "g_scoreboardpic" "BoxedInTDM"
+
+// ******************************************************** 
+// ******************* NEW CODE *************************** 
+// ******************************************************** 
+
+   level.mef_mapname = "BoxedInTDM" 
+   level.mef_maptype = "dm" 
+   level.mef_supportedgametypes = "ffa"::"tdm"::"ft"
+   level.mef_defaultgametype = "tdm" 
+
+   switch (waitthread global/libmef/util.scr::get_gametype) 
+   { 
+      
+      case "ft": 
+         thread global/libmef/ft.scr::ft_begin 
+         break 
+      
+   } 
+
+// ******************************************************** 
+// ***************END OF NEW CODE ************************* 
+// ******************************************************** 
+
+	
+	level waittill prespawn
+	exec global/DMprecache.scr
+
+	exec global/ambient.scr mohdm3
+
+	level.script = maps/dm/BoxedInTDM.scr
+
+	level waittill spawn
+
+end
+

@@ -1,0 +1,20 @@
+main:
+
+// set scoreboard messages
+setcvar "g_obj_alliedtext1"	"Jumanji" 
+setcvar "g_obj_alliedtext2"	"Da soldatino dovrai giocare"
+setcvar "g_obj_alliedtext3"	"finche' un 5 o un 8 non compare"
+setcvar "g_obj_axistext1" 	""
+setcvar "g_obj_axistext2" 	"Made By:"
+setcvar "g_obj_axistext3" 	"CookysNcream and Luga"
+
+setcvar "g_scoreboardpic" "none"
+
+level waitTill prespawn
+
+	//*** Precache Dm Stuff
+	exec global/DMprecache.scr
+
+	level.script = maps/dm/toybox.scr
+
+end

@@ -1,0 +1,83 @@
+// NaziFort
+// Iceman
+
+	exec global/ai.scr
+	exec global/loadout.scr maps/dm/NaziFort.scr
+	exec global/exploder.scr
+
+main:
+
+
+	setcvar "g_obj_alliedtext1" "NaziFort" 
+	setcvar "g_obj_alliedtext2" "WE WHO ARE TRUELY"
+	setcvar "g_obj_alliedtext3" "BRAVE"
+
+	setcvar "g_obj_axistext1" ""
+	setcvar "g_obj_axistext2" "WILL NEVER LIVE IN"
+	setcvar "g_obj_axistext3" "FEAR"
+	
+	setcvar "g_scoreboardpic" "NaziFort"
+
+	// call additional stuff for playing this map round based is needed
+
+	if(level.roundbased)
+		thread roundbasedthread
+
+level waittill prespawn
+	
+	//*** Precache Dm Stuff
+		exec global/DMprecache.scr
+		
+		level.script = maps/dm/NaziFort.scr
+		level.flyplane = 1
+		exec global/bomber.scr
+		exec global/ambient.scr NaziFort
+		exec maps/dm/NaziFort_precache.scr
+		
+	$world farplane 12000
+	$world farplane_color (.501961 .501961 .501961)
+
+	level.script = maps/dm/NaziFort.scr
+	exec global/ambient.scr NaziFort
+level waittill spawn
+
+		
+	//Set yaw parameters for MGs
+
+	$mg4201 yawCenter 0
+	$mg4201 maxYawOffset 45
+	$mg4201 pitchCaps ( -20 35 0)
+
+	$mg4202 yawCenter 270
+	$mg4202 maxYawOffset 45
+	$mg4202 pitchCaps ( 0 40 0)		
+
+	$mg4203 yawCenter 270
+	$mg4203 maxYawOffset 50
+	$mg4203 pitchCaps ( -15 35 0)	
+end
+
+// Exploder for showin off exploders
+kablam:
+	thread global/exploder.scr::explode 5
+end
+
+//-----------------------------------------------------------------------------
+
+
+roundbasedthread:
+
+	// Can specify different scoreboard messages for round based games here.
+
+	level waitTill prespawn
+
+	level waittill spawn
+
+		// set the parameters for this round based match
+		level.dmrespawning = 0 // 1 or 0
+		level.dmroundlimit = 5 // round time limit in minutes
+		level.clockside = kills // set to axis, allies, kills, or draw
+
+	level waittill roundstart
+
+end

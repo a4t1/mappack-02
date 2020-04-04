@@ -1,0 +1,87 @@
+// sandcastle
+// by Cypher
+main:
+
+
+// set scoreboard messages
+setcvar "g_obj_alliedtext1" "SandCastle"
+setcvar "g_obj_alliedtext2" "by Cypher"
+setcvar "g_obj_alliedtext3" "Nonsolid Trucks"
+setcvar "g_obj_axistext1" "fixed by"
+setcvar "g_obj_axistext2" "<TWZ>Gold"
+setcvar "g_obj_axistext3" ""
+
+setcvar "g_scoreboardpic" "sandcastle.tga"
+
+
+
+	// call additional stuff for playing this map round based is needed
+	if(level.roundbased)
+		thread roundbasedthread
+		
+	level waitTill prespawn
+
+	//*** Precache Dm Stuff
+	exec global/DMprecache.scr
+
+	level.script = maps/dm/sandcastle.scr
+	exec global/ambient.scr
+
+$world farplane_color "0.819608 0.756863 0.572549"
+level.fogplane = 13000
+$world farplane level.fogplane        
+	
+	level waittill spawn
+
+thread truck
+thread truck2
+thread tank
+
+end
+
+//-----------------------------------------------------------------------------
+
+truck:
+local.fix1 = spawn script_model
+local.fix1 model "static/vehicle_gmctruck.tik"
+local.fix1.origin = ( 1947.00 3063.00 -58.50 ) 
+local.fix1.angles = ( 0 -135 0 )
+local.fix1.scale = 1.0
+local.fix1 solid
+local.fix1 hide
+
+truck2:
+local.fix1 = spawn script_model
+local.fix1 model "static/vehicle_gmctruck.tik"
+local.fix1.origin = ( 779.00 3131.00 -54.50 ) 
+local.fix1.angles = ( 0 -135 0 )
+local.fix1.scale = 1.0
+local.fix1 solid
+local.fix1 hide
+
+
+	
+
+
+
+end
+
+
+//-----------------------------------------------------------------------------
+
+roundbasedthread:
+
+	// Can specify different scoreboard messages for round based games here.
+	
+	level waitTill prespawn
+
+	level waittill spawn
+
+	// set the parameters for this round based match
+	level.dmrespawning = 0 // 1 or 0
+	level.dmroundlimit = 5 // round time limit in minutes
+	level.clockside = kills // set to axis, allies, kills, or draw
+
+	level waittill roundstart
+
+end

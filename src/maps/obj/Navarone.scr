@@ -1,0 +1,88 @@
+// Navarone
+// ARCHITECTURE: Televinken
+// SCRIPTING: Televinken
+
+ 
+main:
+
+// set scoreboard messages
+setcvar "g_obj_alliedtext1" "Blow up the" 
+setcvar "g_obj_alliedtext2" "guns of"
+setcvar "g_obj_alliedtext3" "Navarone"
+
+setcvar "g_obj_axistext1" "Defend the"
+setcvar "g_obj_axistext2" "guns of"
+setcvar "g_obj_axistext3" "Navarone"
+
+setcvar "g_scoreboardpic" "none"
+
+// call additional stuff for playing this map round based is needed
+if(level.roundbased)
+thread roundbasedthread
+
+level waitTill prespawn
+
+//*** Precache Dm Stuff
+exec global/DMprecache.scr
+
+$world farplane 2700
+$world farplane_color (0.30 0.30 0.40)
+
+level.script = maps/obj/Navarone.scr
+exec global/ambient.scr m3l2
+exec global/door_locked.scr::lock
+thread global/exploder.scr::main // Initialize the exploder subsystem
+
+level waittill spawn
+
+thread navagun
+
+level.defusing_team = "axis" // Axis like the bombs unplanted
+level.planting_team = "allies" // Allies will try to plant the bombs
+level.targets_to_destroy = 1 // Number of targets in this map
+level.bomb_damage = 200 // Default damage of the bomb
+level.bomb_explosion_radius = 2048 // Default radius of bomb blast
+
+level.dmrespawning = 1 // 1 or 0 (0=no respawn)
+level.dmroundlimit = 10 // round time limit in minutes
+level.clockside = axis // set to axis, allies, kills, or draw
+
+level waittill roundstart
+
+$guns_bomb thread global/obj_dm.scr::bomb_thinker // "panel_bomb" is the targetname set on the bomb in MOHRadiant
+thread allies_win_bomb // Start the win check thread for allies
+$guns_bomb thread axis_win_timer // Start the win check thread for axis
+end // end of main
+
+// Allied victory test
+
+
+allies_win_bomb:
+while(level.targets_destroyed < level.targets_to_destroy) // While undestroyed objectives left
+waitframe // chill out
+teamwin allies // No objectives left allies win
+end // end allied victory test
+
+// Axis victory test
+
+
+axis_win_timer:
+level waittill axiswin // At the end Axis win
+end // end axis victory test
+
+
+//----------------------------------------------------------------------------- 
+
+navagun: 
+
+wait (randomfloat 28 + 2)
+	
+$navagun anim start
+
+wait 1
+
+$navagun2 anim start
+
+level waittill roundstart
+
+end

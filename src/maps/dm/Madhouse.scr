@@ -1,0 +1,652 @@
+main:
+
+setcvar "g_obj_alliedtext1" "Welcome"
+setcvar "g_obj_alliedtext2" "To The"
+setcvar "g_obj_alliedtext3" "Madhouse"
+setcvar "g_obj_axistext1" ""
+setcvar "g_obj_axistext2" "by"
+setcvar "g_obj_axistext3" "Wibbilus_Maximus"
+
+setcvar "g_scoreboardpic" "madhouse"
+
+	level.mef_mapname = "madhouse"
+	level.mef_maptype = "dm"
+	level.mef_supportedgametypes = "ffa"::"tdm"::"rbm"::"ft"
+	level.mef_defaultgametype = "ft"
+
+	switch (waitthread global/libmef/util.scr::get_gametype)
+	{
+
+		case "ft":
+			thread global/libmef/ft.scr::ft_begin
+			break
+
+		case "rbm":
+			break
+	}
+
+	level waitTill prespawn
+
+	//*** Precache Dm Stuff
+	exec global/DMprecache.scr
+
+	level.script = maps/dm/madhouse.scr
+	exec global/ambient.scr obj_team2
+
+
+	level waittill spawn
+
+	$world farclipoverride -1
+
+end
+
+wallcoverhide:
+
+local.covertrigger = $wallcover_trigger
+thread wallcover local.covertrigger
+
+end
+
+wallcoverhide2:
+
+local.covertrigger = $wallcover_trigger2
+thread wallcover local.covertrigger
+
+end
+
+wallcoverhide3:
+
+local.covertrigger = $wallcover_trigger3
+thread wallcover local.covertrigger
+
+end
+
+wallcoverhide4:
+
+local.covertrigger = $wallcover_trigger4
+thread wallcover local.covertrigger
+
+end
+
+wallcoverhide5:
+
+local.covertrigger = $wallcover_trigger5
+thread wallcover local.covertrigger
+
+end
+
+wallcover local.covertrigger:
+
+local.activate = 1
+while(local.activate)
+{
+	local.activate = 0
+	for (local.i=1;local.i<=$player.size;local.i++)
+	{
+		if ($player[local.i] istouching local.covertrigger)
+		{
+			local.activate = 1
+			$wallcover hide
+			$wallcover notsolid
+		}
+	}
+	wait .1
+}
+$wallcover show
+$wallcover solid
+
+end
+
+spinitall:
+
+if (level.spinactivate == 1)
+	end
+
+level.spinactivate = 1
+while(level.spinactivate)
+{
+	level.spinactivate = 0
+	for (local.i=1;local.i<=$player.size;local.i++)
+	{
+		if ($player[local.i] istouching $spin_trigger)
+		{
+			local.viewit = $player[local.i].viewangles[1]
+			level.spinactivate = 1
+			if (local.viewit < -170)
+			{
+				$player[local.i].viewangles = ($player[local.i].viewangles[0] (local.viewit + 350) $player[local.i].viewangles[2])
+			}
+			else
+			{
+				$player[local.i].viewangles = ($player[local.i].viewangles[0] (local.viewit - 10) $player[local.i].viewangles[2])
+			}
+		}
+	}
+	wait .1
+}
+
+end
+	
+screwy:
+
+local.whichwierd = (randomint 4) 
+local.player = parm.other
+
+
+	self nottriggerable
+	switch (local.whichwierd)
+	{
+		case 0:
+			local.player.viewangles = (local.player.viewangles[0] local.player.viewangles[1] 90 )
+			break
+		case 1:
+			local.player.viewangles = (local.player.viewangles[0] local.player.viewangles[1] 180 )
+			break
+		case 2:
+			local.player.viewangles = (local.player.viewangles[0] local.player.viewangles[1] -90 )
+			break
+		case 3:
+			local.player.viewangles = (local.player.viewangles[0] local.player.viewangles[1] 0 )
+			break
+	}
+while (local.player istouching self)
+{
+	wait .1
+}
+
+self triggerable
+
+end
+
+straighten_up:
+
+local.player = parm.other
+local.player.viewangles = (local.player.viewangles[0] local.player.viewangles[1] 0 )
+
+end
+
+corridor_south:
+
+local.timecounter = 0
+local.player = parm.other
+
+while(local.player istouching $trigger_corridor_south)
+{
+	local.timecounter++
+	local.player.origin = (local.player.origin[0] (local.player.origin[1] - local.timecounter) local.player.origin[2])
+	wait .8
+}
+
+end
+
+corridor_north:
+
+local.timecounter = 0
+local.player = parm.other
+
+while(local.player istouching $trigger_corridor_north)
+{
+	local.timecounter++
+	local.player.origin = (local.player.origin[0] (local.player.origin[1] + local.timecounter) local.player.origin[2])
+	wait .8
+}
+
+end
+
+slope_jump:
+
+local.x = (randomint 768) - 384
+local.y = (randomint 768) - 384
+
+parm.other jumpxy local.x local.y 100
+
+end
+
+room_jump:
+
+local.x = (randomint 768) - 384
+local.y = (randomint 768) - 384
+local.xy = ((randomint 4) * 90) - 180
+
+parm.other jumpxy local.x local.y 130
+parm.other.viewangles = (parm.other.viewangles[0] local.xy parm.other.viewangles[2])
+
+end
+
+door_trigger1:
+
+$reset1 nottriggerable
+
+local.player = parm.other
+
+local.x = (randomint 3) 
+$door_trigger1 nottriggerable
+
+switch(local.x)
+{
+	case 0:
+		$reset1 triggerable
+		break
+	case 1:
+		$trap1 notsolid
+		break
+	case 2:
+		local.player jumpxy 1 1 1
+		break
+}
+
+end
+
+teleportup1:
+
+//parm.other tele 2968 -2016 96
+//parm.other.viewangles = (parm.other.viewangles[0] 180 parm.other.viewangles[2])
+$door_trigger1 triggerable
+
+local.player = parm.other
+thread teleportu local.player
+
+end
+
+teleportdown1:
+
+$trap1 solid
+//parm.other tele -2440 -2008 104
+//parm.other.viewangles = (parm.other.viewangles[0] 270 parm.other.viewangles[2])
+$door_trigger1 triggerable
+
+local.player = parm.other
+thread teleportd local.player
+
+end
+
+reset1:
+
+$door_trigger1 triggerable
+
+end
+
+door_trigger2:
+
+$reset2 nottriggerable
+
+local.player = parm.other
+
+local.x = (randomint 3) 
+$door_trigger2 nottriggerable
+
+switch(local.x)
+{
+	case 0:
+		$reset2 triggerable
+		break
+	case 1:
+		$trap2 notsolid
+		break
+	case 2:
+		local.player jumpxy 1 1 1
+		break
+}
+
+end
+
+teleportup2:
+
+//parm.other tele 320 -3000 104
+//parm.other.viewangles = (parm.other.viewangles[0] 180 parm.other.viewangles[2])
+$door_trigger2 triggerable
+
+local.player = parm.other
+thread teleportu local.player
+
+end
+
+teleportdown2:
+
+$trap2 solid
+//parm.other tele 16 -1552 128
+//parm.other.viewangles = (parm.other.viewangles[0] 270 parm.other.viewangles[2])
+$door_trigger2 triggerable
+
+local.player = parm.other
+thread teleportd local.player
+
+end
+
+reset2:
+
+$door_trigger2 triggerable
+
+end
+
+door_trigger3:
+
+$reset3 nottriggerable
+
+local.player = parm.other
+
+local.x = (randomint 3) 
+$door_trigger3 nottriggerable
+
+switch(local.x)
+{
+	case 0:
+		$reset3 triggerable
+		break
+	case 1:
+		$trap3 notsolid
+		break
+	case 2:
+		local.player jumpxy 1 1 1
+		break
+}
+
+end
+
+teleportup3:
+
+//parm.other tele 1904 -3584 104
+//parm.other.viewangles = (parm.other.viewangles[0] 270 parm.other.viewangles[2])
+$door_trigger3 triggerable
+
+local.player = parm.other
+thread teleportu local.player
+
+end
+
+teleportdown3:
+
+$trap3 solid
+//parm.other tele -1648 -3656 104
+//parm.other.viewangles = (parm.other.viewangles[0] 0 parm.other.viewangles[2])
+$door_trigger3 triggerable
+
+local.player = parm.other
+thread teleportd local.player
+
+end
+
+reset3:
+
+$door_trigger3 triggerable
+
+end
+
+door_trigger4:
+
+$reset4 nottriggerable
+
+local.player = parm.other
+
+local.x = (randomint 3) 
+$door_trigger4 nottriggerable
+
+switch(local.x)
+{
+	case 0:
+		$reset4 triggerable
+		break
+	case 1:
+		$trap4 notsolid
+		break
+	case 2:
+		local.player jumpxy 1 1 1
+		break
+}
+
+end
+
+teleportup4:
+
+//parm.other tele -2512 -2080 104
+//parm.other.viewangles = (parm.other.viewangles[0] 0 parm.other.viewangles[2])
+$door_trigger4 triggerable
+
+local.player = parm.other
+thread teleportu local.player
+
+end
+
+teleportdown4:
+
+$trap4 solid
+//parm.other tele 2896 -1944 104
+//parm.other.viewangles = (parm.other.viewangles[0] 270 parm.other.viewangles[2])
+$door_trigger4 triggerable
+
+local.player = parm.other
+thread teleportd local.player
+
+end
+
+reset4:
+
+$door_trigger4 triggerable
+
+end
+
+door_trigger5:
+
+$reset5 nottriggerable
+
+local.player = parm.other
+
+local.x = (randomint 3) 
+$door_trigger5 nottriggerable
+
+switch(local.x)
+{
+	case 0:
+		$reset5 triggerable
+		break
+	case 1:
+		$trap5 notsolid
+		break
+	case 2:
+		local.player jumpxy 1 1 1
+		break
+}
+
+end
+
+teleportup5:
+
+//parm.other tele 16 -2928 104
+//parm.other.viewangles = (parm.other.viewangles[0] 0 parm.other.viewangles[2])
+$door_trigger5 triggerable
+
+local.player = parm.other
+thread teleportu local.player
+
+end
+
+teleportdown5:
+
+$trap5 solid
+//parm.other tele 320 -1552 280
+//parm.other.viewangles = (parm.other.viewangles[0] 270 parm.other.viewangles[2])
+$door_trigger5 triggerable
+
+local.player = parm.other
+thread teleportd local.player
+
+end
+
+reset5:
+
+$door_trigger5 triggerable
+
+end
+
+door_trigger6:
+
+$reset6 nottriggerable
+
+local.player = parm.other
+
+local.x = (randomint 3) 
+$door_trigger6 nottriggerable
+
+switch(local.x)
+{
+	case 0:
+		$reset6 triggerable
+		break
+	case 1:
+		$trap6 notsolid
+		break
+	case 2:
+		local.player jumpxy 1 1 1
+		break
+}
+
+end
+
+teleportup6:
+
+//parm.other tele -1576 -3584 104
+//parm.other.viewangles = (parm.other.viewangles[0] 270 parm.other.viewangles[2])
+$door_trigger6 triggerable
+
+local.player = parm.other
+thread teleportu local.player
+
+end
+
+teleportdown6:
+
+$trap6 solid
+//parm.other tele 1976 -3656 104
+//parm.other.viewangles = (parm.other.viewangles[0] 180 parm.other.viewangles[2])
+$door_trigger6 triggerable
+
+local.player = parm.other
+thread teleportd local.player
+
+end
+
+reset6:
+
+$door_trigger6 triggerable
+
+end
+
+teleportu local.player:
+
+local.whichone = -1
+while (local.whichone == -1)
+{
+	local.whichone = randomint(10)
+	if ($player istouching $("t" + string (local.whichone + 81)) )
+		local.whichone = -1
+}
+
+switch(local.whichone)
+{
+	case 0:
+		local.player tele 1976 -3656 104
+		local.player.viewangles = (local.player.viewangles[0] 180 local.player.viewangles[2])
+		break
+	case 1:
+		local.player tele -1576 -3584 104
+		local.player.viewangles = (local.player.viewangles[0] 270 local.player.viewangles[2])
+		break
+	case 2:
+		local.player tele 16 -2928 104
+		local.player.viewangles = (local.player.viewangles[0] 0 local.player.viewangles[2])
+		break
+	case 3:
+		local.player tele 2896 -1944 104
+		local.player.viewangles = (local.player.viewangles[0] 270 local.player.viewangles[2])
+		break
+	case 4:
+		local.player tele -2512 -2080 104
+		local.player.viewangles = (local.player.viewangles[0] 0 local.player.viewangles[2])
+		break
+	case 5:
+		local.player tele -1648 -3656 104
+		local.player.viewangles = (local.player.viewangles[0] 0 local.player.viewangles[2])
+		break
+	case 6:
+		local.player tele 1904 -3584 104
+		local.player.viewangles = (local.player.viewangles[0] 270 local.player.viewangles[2])
+		break
+	case 7:
+		local.player tele 320 -3000 104
+		local.player.viewangles = (local.player.viewangles[0] 180 local.player.viewangles[2])
+		break
+	case 8:
+		local.player tele -2440 -2008 104
+		local.player.viewangles = (local.player.viewangles[0] 270 local.player.viewangles[2])
+		break
+	case 9:
+		local.player tele 2968 -2016 96
+		local.player.viewangles = (local.player.viewangles[0] 180 local.player.viewangles[2])
+		break
+}
+
+end
+
+teleportd local.player:
+
+local.whichone = -1
+while (local.whichone == -1)
+{
+	local.whichone = randomint(12)
+	if ($player istouching $("t" + string (local.whichone + 81)) )
+		local.whichone = -1
+}
+
+switch(local.whichone)
+{
+	case 0:
+		local.player tele 1976 -3656 104
+		local.player.viewangles = (local.player.viewangles[0] 180 local.player.viewangles[2])
+		break
+	case 1:
+		local.player tele -1576 -3584 104
+		local.player.viewangles = (local.player.viewangles[0] 270 local.player.viewangles[2])
+		break
+	case 2:
+		local.player tele 16 -2928 104
+		local.player.viewangles = (local.player.viewangles[0] 0 local.player.viewangles[2])
+		break
+	case 3:
+		local.player tele 2896 -1944 104
+		local.player.viewangles = (local.player.viewangles[0] 270 local.player.viewangles[2])
+		break
+	case 4:
+		local.player tele -2512 -2080 104
+		local.player.viewangles = (local.player.viewangles[0] 0 local.player.viewangles[2])
+		break
+	case 5:
+		local.player tele -1648 -3656 104
+		local.player.viewangles = (local.player.viewangles[0] 0 local.player.viewangles[2])
+		break
+	case 6:
+		local.player tele 1904 -3584 104
+		local.player.viewangles = (local.player.viewangles[0] 270 local.player.viewangles[2])
+		break
+	case 7:
+		local.player tele 320 -3000 104
+		local.player.viewangles = (local.player.viewangles[0] 180 local.player.viewangles[2])
+		break
+	case 8:
+		local.player tele -2440 -2008 104
+		local.player.viewangles = (local.player.viewangles[0] 270 local.player.viewangles[2])
+		break
+	case 9:
+		local.player tele 2968 -2016 96
+		local.player.viewangles = (local.player.viewangles[0] 180 local.player.viewangles[2])
+		break
+	case 10:
+		local.player tele 320 -1552 128
+		local.player.viewangles = (local.player.viewangles[0] 270 local.player.viewangles[2])
+		break
+	case 11:
+		local.player tele 16 -1552 128
+		local.player.viewangles = (local.player.viewangles[0] 270 local.player.viewangles[2])
+		break
+}
+
+end

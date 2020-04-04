@@ -1,0 +1,77 @@
+// Obj : St Renan
+// ARCHITECTURE: Kingmarzo (Dave Marsden)
+// SCRIPTING: Kingmarzo (Dave Marsden)
+
+main:
+
+
+setcvar "g_obj_alliedtext1" "Defend the bridge" 
+setcvar "g_obj_alliedtext2" ""
+setcvar "g_obj_alliedtext3" ""
+
+setcvar "g_obj_axistext1" "Place an explosive"
+setcvar "g_obj_axistext2" "under the bridge"
+setcvar "g_obj_axistext3" "to destroy it"
+
+setcvar "g_scoreboardpic" "renan"
+
+	level waittill prespawn
+
+	//*** Precache Dm Stuff
+	exec global/DMprecache.scr
+
+	$world farplane 5000
+	$world farplane_color (0.675 0.663 0.651)
+	
+	level.script = maps/obj/renan.scr
+	exec global/ambient.scr m3l2
+		
+	thread global/exploder.scr::main
+	exec global/door_locked.scr::lock
+
+	level waittill spawn
+
+	level.defusing_team = "allies"
+	level.planting_team = "axis"
+	level.bomb_damage = 300
+	level.bomb_explosion_radius = 2048
+
+	// set the parameters for this round/wave based match
+	level.dmrespawning = 0   // 1 **wave based** or 0 **round based**
+	level.dmroundlimit = 5   // round time limit in minutes
+	level.clockside = allies // set to axis, allies, kills, or draw
+
+	level waittill roundstart
+		
+		$house_explode thread global/obj_dm.scr::bomb_thinker
+		
+		
+		thread axis_win_bomb $house_explode
+ 		$house_explode thread allied_win_timer
+ 		
+//		thread objectives_setup
+	
+end
+
+
+axis_win_bomb local.bomb1:
+
+	while (local.bomb1.exploded != 1)
+		wait .1
+		
+	teamwin axis
+end
+
+//*** --------------------------------------------
+//*** "Allied Victory"
+//*** --------------------------------------------
+
+allied_win_timer:
+
+	level waittill allieswin
+
+end
+
+
+
+

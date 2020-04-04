@@ -1,0 +1,171 @@
+//
+//
+// A method to monitor a players weapons
+// Based on an idea by JV_MAP
+// Scripting by ScorpioMidget
+// modified for map by Cyborg
+//
+//
+//
+
+main:
+
+	for (local.p=1;local.p<=32;local.p++)
+		thread player_weapon local.p
+
+end 
+
+player_weapon local.p:
+
+	// infinate loop
+	while (1)
+	{
+restart:
+		waitframe // pause so we dont get a crash
+
+		// wait for player to join server
+		while (local.p>$player.size)
+			waitframe
+
+		// get player into local variable
+		local.player=$player[local.p]
+		
+		while (1)
+		{
+			wait 1
+
+			// check player didn't leave server
+			if (local.player==NULL)
+				goto restart
+
+			// send a command to the players weapon
+			local.player weaponcommand dual targetname ("Player_" + local.player.entnum + "_gun")
+
+			// get the players weapon
+			local.weapon = $("Player_" + local.player.entnum + "_gun")
+		
+			// check if weapon is valid
+			if (local.weapon!=NULL)
+				break
+		}
+
+		// get the weapon model
+		local.model = local.weapon.model
+
+		// rename the weapon
+		local.weapon.targetname = ("Player_" + local.player.entnum + "_weapon_" + local.model)
+
+		// setup the player weapon variable
+		local.player.weapon = $("Player_" + local.player.entnum + "_weapon_" + local.model)
+
+		// store the player weapon model
+		local.lastweapon = local.player.weapon.model
+
+		// loop until player leaves server
+
+		if (local.player==NULL)
+			goto restart
+
+		while (local.player!=NULL)
+		{
+
+			waitframe
+
+			// wait till we change weapons
+			while (local.player!=NULL)
+			{
+				wait 1
+
+				if (local.player==NULL)
+					goto restart
+
+				// send a command to the players weapon
+				local.player weaponcommand dual targetname ("Player_" + local.player.entnum + "_gun")
+
+				// get the players weapon model
+				local.player.weapon = $("Player_" + local.player.entnum + "_gun")
+
+				if (local.player.weapon==NULL)
+				{
+				}
+				else
+				{
+					// rename it
+					local.player.weapon.targetname = ("Player_" + local.player.entnum + "_weapon_" + local.player.weapon.model)
+				}
+										
+				if (local.player.weapon!=NULL && local.lastweapon!=local.weapon)
+					break
+			}
+
+			if (local.player==NULL)
+				goto restart
+
+			local.lastweapon = local.player.weapon.model
+
+			level.mapturnoff = 1
+
+			if (level.lighton == 0)
+			{
+
+				if (local.player.dmteam != "allies")
+				{
+					if (local.player.weapon.model == "models/weapons/springfield.tik")
+					{
+						local.player take weapons/springfield.tik
+						local.player give weapons/kar98.tik
+						local.player weapprev
+						waitframe
+						local.player give items/binoculars.tik
+					}
+					else
+					{
+						if (local.player.weapon.model == "models/weapons/kar98sniper.tik")
+						{
+							local.player take weapons/kar98sniper.tik
+							local.player give weapons/kar98.tik
+							local.player weapprev
+							waitframe
+							local.player give items/binoculars.tik
+						}
+						else
+						{
+						}
+					}
+				}			
+			}
+			else
+			{
+
+				if (local.player.dmteam != "axis")
+				{
+					if (local.player.weapon.model == "models/weapons/springfield.tik")
+					{
+						local.player take weapons/springfield.tik
+						local.player give weapons/m1_garand.tik
+						local.player weapprev
+						waitframe
+						local.player give items/binoculars.tik
+					}
+					else
+					{
+						if (local.player.weapon.model == "models/weapons/kar98sniper.tik")
+						{
+							local.player take weapons/kar98sniper.tik
+							local.player give weapons/m1_garand.tik
+							local.player weapprev
+							waitframe
+							local.player give items/binoculars.tik
+						}
+						else
+						{
+						}
+					}
+				}	
+			}
+		}
+
+	}
+
+	// should never get here
+end

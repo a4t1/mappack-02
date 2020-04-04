@@ -1,0 +1,264 @@
+////////////////////////////////////////////////////
+// MAP   : Deutsche Dogge
+// SCRIPT: Deutsche Dogge
+// MOD   : CO2 by AlterNation
+//
+// Thanks to 'Bjarne BZR' and 'Rookie One' at .map for their help
+////////////////////////////////////////////////////
+main:
+
+	setcvar "g_obj_alliedtext1" "Co2:Warehouse"
+	setcvar "g_obj_alliedtext2" ""
+	setcvar "g_obj_alliedtext3" ""
+	setcvar "g_obj_axistext1" ""
+	setcvar "g_obj_axistext2" ""
+	setcvar "g_obj_axistext3" ""
+
+setcvar "g_scoreboardpic" "textures/mohmenu/dmloading/pb_warehouse_loading.jpg"
+
+	level waittill prespawn
+
+	// fog makes the map's FPS worst, too bad, some ambient smoke would be cool
+	//$world farplane 2000			//viewdistance from player
+	//$world farplane_color ( 0.1 0.1 0.1 )	//fog colour and density, higher values the more solid the fog, they are in order of (red green blue)
+	//$world farplane_cull 0			//to cull or not to cull? 0=no 1=yes
+	//$world farclipoverride -1		//I don't know what this one does, anybody?
+	//$world skybox_farplane 4000		//view distance of the skybox texture
+
+	exec global/DMprecache.scr
+	level.script = maps/dm/pb_warehouse_beta.scr
+	exec global/ambient.scr mohdm3
+
+	thread SpawnAmmoDepotModels	// spawn ammo depot models
+
+	level waittill spawn
+
+	if(level.roundbased)
+	{
+		level.dmrespawning = 0 		// 1 or 0
+		level.dmroundlimit = 5 		// round time limit in minutes
+		level.clockside = kills 	// set to axis, allies, kills, or draw
+	}
+
+	level.ammo_ownerteam = "neutral"		//axis, allies, neutral
+	level.cgametype = int(getcvar(g_gametype))	// current gametype
+
+	//disable triggers in FFA, activate them in other gametypes
+	if(level.cgametype == 1)
+	{
+		$trigger_ammoaxis nottriggerable
+		$trigger_ammoallies nottriggerable
+	}
+	else
+	{
+		thread RedAmmoThread	// axis ammo switch thread
+		thread BlueAmmoThread	// allies ammo switch thread
+	}
+
+	if(level.roundbased)
+	{
+		level waittill roundstart
+	}
+end
+
+///////////////////////////////////////////////////////////
+// Spawn the ammo depot models and set their values
+///////////////////////////////////////////////////////////
+SpawnAmmoDepotModels:
+
+	local.origin = (882.00 598.00 52.00)	//position of first spawned munition
+
+	for(local.i = 1; local.i <= 15; local.i++)
+	{
+		local.ammomodel 	= spawn script_model "targetname" "filteredammomodel"
+		local.ammomodel.origin	= local.origin
+		local.ammomodel.angles	= ( 0 ((randomint 359)+1) 0 )
+		local.ammomodel.scale	= 1.0
+		local.ammomodel.index	= local.i
+
+		local.trigmodel 	= spawn trigger_multiple "targetname" "filteredammo"
+		local.trigmodel.origin	= local.origin
+		local.trigmodel.scale 	= 1.0
+		local.trigmodel.index	= local.i
+
+		if(local.i <= 5)
+		{	//TODO: Change for custom paintball grenade model when done
+			local.ammomodel model "models/static/50cal_crate.tik"
+		}
+		else
+		{
+			local.ammomodel model "models/equipment/elite3d/paintclipfloor.tik"
+		}
+
+		local.ammomodel notsolid
+		local.ammomodel show
+		local.trigmodel setsize ( -10 -5 -5 ) ( 5 5 5 )
+		local.trigmodel setthread AmmoPickupFilter
+
+		local.origin += (0.00 28.00 0.00)			// increment the origin vector.y position for next model
+		if(local.i == 5) { local.origin += (0.00 12.00 0.00) }	// if at the first gun ammo, increment more
+	}
+
+end
+
+////////////////////////////////////////
+// Filter who tries to pickup ammo
+// level.ammo_ownerteam determine who can pickup
+//  axis, allies, freeforall
+///////////////////////////////////////
+AmmoPickupFilter:
+
+	local.player 	= parm.other	// player who triggered
+	local.index	= self.index	// index of trigger activated in array
+
+	self nottriggerable
+
+	// if player is on owner team or if it's freeforall, give ammo
+	if((local.player.dmteam == level.ammo_ownerteam) || level.cgametype == 1)
+	{
+		$filteredammomodel[local.index] hide
+
+		if(local.index <= 5)
+		{
+			//give a grenade
+			$filteredammo[local.index] playsound "m2frag_snd_pickup_ammo"
+			local.player ammo grenade 1
+		}
+		else
+		{
+			// give all ammotypes to player, ammo is useless if
+			// he has not the needed weapon.
+			// solves eventual problems of compatibility with other mods
+			$filteredammo[local.index] playsound "m1_snd_pickup_ammo"
+			local.player ammo mg 		25
+			local.player ammo smg 		25
+			local.player ammo heavy 	5
+			local.player ammo pistol 	25
+			local.player ammo rifle 	25
+			local.player ammo shotgun 	25
+			waitframe
+		}
+
+		for(local.waiting = 0; local.waiting < 15; local.waiting++)
+		{
+			if((level.ammo_ownerteam != local.player.dmteam) && (level.cgametype != 1))
+			{
+				waitframe
+				break
+			}
+			else
+			{
+				wait 1
+			}
+		}
+		$filteredammomodel[local.index] show
+	}
+	else
+	{
+		local.player iprint "Your team must control the depot to pickup munitions!" 1
+		for(local.waiting = 0; local.waiting < 15; local.waiting++)
+		{
+			if(level.ammo_ownerteam == local.player.dmteam)
+			{
+				waitframe
+				break
+			}
+			else
+			{
+				wait 1
+			}
+		}
+	}
+
+	self triggerable
+end
+
+/////////////////////////////////////////
+// Switch Ammo Depot to Axis on use
+/////////////////////////////////////////
+RedAmmoThread:
+
+	while(1)
+	{
+		$trigger_ammoaxis waittill trigger	// wait until a player activates
+
+		$trigger_ammoaxis nottriggerable	// make sure nothing else gets
+		$trigger_ammoallies nottriggerable	// started on either side
+
+		local.player = parm.other		// get player reference
+
+		if(local.player.dmteam == "axis")	// is it an axis? (red)
+		{
+			// if already controlled, print reminder message
+			if(level.ammo_ownerteam == "axis")
+			{
+				local.player iprint "Your team already has control of the depot!" 1
+			}
+			else	// else team gains control
+			{
+				$trigger_ammoaxis playsound alarm_switch
+				level.ammo_ownerteam = "axis"
+				iprintlnbold_noloc "Red Team gained control of the the munitions depot!"
+			}
+		}
+		else	//player is an allied, print denied message
+		{
+			local.player iprint "This is the Red Team switch, you cannot activate it!" 1
+			if(level.ammo_ownerteam == "allies")
+			{
+				// and tell him he already has control
+				wait 1.5
+				local.player iprint "Anyway your team already has control of the depot..." 1
+			}
+		}
+
+		// reset triggering switches
+		$trigger_ammoallies triggerable
+		$trigger_ammoaxis triggerable
+	}
+end
+
+/////////////////////////////////////////
+// Switch Ammo Depot to Allies on use
+/////////////////////////////////////////
+BlueAmmoThread:
+
+	while(1)
+	{
+		$trigger_ammoallies waittill trigger	// wait until a player activates
+
+		$trigger_ammoallies nottriggerable	// make sure nothing else gets
+		$trigger_ammoaxis nottriggerable	// started on either side
+
+		local.player = parm.other		// get player reference
+
+		if(local.player.dmteam == "allies")	// is it an allied? (blue)
+		{
+			// if already controlled, print reminder message
+			if(level.ammo_ownerteam == "allies")
+			{
+				local.player iprint "Your team already has control of the depot!" 1
+			}
+			else	// else team gains control
+			{
+				$trigger_ammoallies playsound alarm_switch
+				level.ammo_ownerteam = "allies"
+				iprintlnbold_noloc "Blue Team gained control over the munitions depot!"
+			}
+		}
+		else	//player is an axis, print denied message
+		{
+			local.player iprint "This is the Blue Team switch. You cannot activate it." 1
+			if(level.ammo_ownerteam == "axis")
+			{
+				// and tell him he already has control
+				wait 1.5
+				local.player iprint "Anyway your team already has control of the depot..." 1
+			}
+		}
+
+		// reset triggering switches
+		$trigger_ammoaxis triggerable
+		$trigger_ammoallies triggerable
+	}
+end

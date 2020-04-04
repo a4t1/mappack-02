@@ -1,0 +1,293 @@
+// Assaulting the Reichstag. Berlin, April/May 1945.
+// ARCHITECTURE: Matías "Tenebris" Dupuy & Martín "Kidnapper" Dupuy
+// SCRIPTING: Matías "Tenebris" Dupuy
+
+main:
+
+thread arrancar_scoretexto
+
+setcvar "g_scoreboardpic" "Reichstag_scoreboard"
+
+//=============================================================================
+
+///////////////////////
+level waittill prespawn
+///////////////////////
+
+exec global/DMprecache.scr
+
+$bunkerspawn_1 disablespawn
+$bunkerspawn_2 disablespawn
+$kamspawn_1 disablespawn
+$kamspawn_2 disablespawn
+$fondospawn disablespawn
+$tunelchange_1 disablespawn
+$tunelchange_2 disablespawn
+
+level.script = maps/obj/Reichstag.scr
+exec global/ambient.scr obj_team1
+waitthread documents_random_location
+thread global/exploder.scr::main
+
+
+///////////
+// set fog:
+///////////
+
+// Tenebris & Kidnapper agree: No-Fog on this one.
+
+
+//////////////////
+// sound fx alias:
+//////////////////
+
+local.master = spawn ScriptMaster
+
+local.master aliascache snd_fire1 sound/amb/Amb_FireLoop_02.wav soundparms 2.0 0.2 1.0 0.2 200 2000 auto loaded maps "obj dm"
+
+local.master aliascache snd_fire2 sound/amb/Amb_FireLoop_01.wav soundparms 2.0 0.2 1.0 0.2 200 2000 auto loaded maps "obj dm"
+
+local.master aliascache snd_box sound/amb/Amb_LightHum_01.wav soundparms 1.0 0.2 1.0 0.2 200 2000 auto loaded maps "obj dm"
+
+local.master aliascache snd_radio sound/mechanics/Mec_RadioLoop_04.wav soundparms 1.0 0.2 1.0 0.2 200 2000 auto loaded maps "obj dm"
+
+local.master aliascache snd_generator sound/mechanics/Mec_GeneratorRun_01.wav soundparms 2.0 0.2 1.0 0.2 200 2000 auto loaded maps "obj dm"
+
+local.master aliascache snd_bigbox sound/amb/Amb_LightHum_03.wav soundparms 2.0 0.2 1.0 0.2 200 2000 auto loaded maps "obj dm"
+
+local.master aliascache documents_stolen sound/items/Item_PaperPU_01.wav soundparms 1.0 0.2 1.0 0.2 200 2000 auto loaded maps "obj dm"
+
+//=============================================================================
+
+////////////////////
+level waittill spawn
+////////////////////
+
+level.defusing_team = "axis"
+level.planting_team = "allies"
+level.targets_to_destroy = 2
+level.bomb_damage = 200
+level.bomb_explosion_radius = 2048
+
+level.dmrespawning = 1
+level.dmroundlimit = 12
+level.clockside = axis
+
+
+/////////////////
+//sound fx links:
+/////////////////
+
+$fire1 loopsound snd_fire1
+$fire2 loopsound snd_fire2
+$fire3 loopsound snd_fire1
+$fire4 loopsound snd_fire2
+
+$electricbox1 loopsound snd_box
+$electricbox2 loopsound snd_box
+$electricbox3 loopsound snd_box
+$electricbox4 loopsound snd_box
+$electricbox5 loopsound snd_box
+$electricbox6 loopsound snd_box
+$electricbox7 loopsound snd_box
+$electricbox8 loopsound snd_box
+$electricbox9 loopsound snd_box
+$electricbox10 loopsound snd_box
+$electricbox11 loopsound snd_box
+$electricbox12 loopsound snd_box
+$electricbox13 loopsound snd_box
+$electricbox14 loopsound snd_box
+$electricbox15 loopsound snd_box
+$electricbox16 loopsound snd_box
+
+$bunkradio loopsound snd_radio
+
+$generator1 loopsound snd_generator
+$generator2 loopsound snd_generator
+$generator3 loopsound snd_generator
+
+$bigbox loopsound snd_bigbox
+
+//=============================================================================
+
+/////////////////////////
+level waittill roundstart
+/////////////////////////
+
+$flag_bomb thread global/obj_dm.scr::bomb_thinker
+thread allies_win_bomb
+$flag_bomb thread axis_win_timer
+thread bomb1_exploded $flag_bomb
+$documents_trigger thread documents_check
+$lobby_trigger thread lobby_cambia_spawn
+$tunel_trigger thread tunel_cambia_spawn
+
+end
+
+allies_win_bomb:
+while(level.targets_destroyed < level.targets_to_destroy)
+waitframe
+teamwin allies
+
+end
+
+axis_win_timer:
+level waittill axiswin
+
+end
+
+//=============================================================================
+
+/////////////////////
+// thread conditions:
+/////////////////////
+
+ponchi_wildcard:
+
+	if (parm.other == $player)
+	parm.other iprint "Poncharello believes that you're a winner too!"
+	parm.other health 100
+end
+
+//=============================================================================
+
+lobby_cambia_spawn:
+	while(1) {
+		self waittill trigger
+		if(parm.other.dmteam == allies) {
+			if(self == $lobby_trigger)
+			$bunkerspawn_1 enablespawn
+			$bunkerspawn_2 enablespawn
+			$kamspawn_1 enablespawn
+			$kamspawn_2 enablespawn
+			$fondospawn enablespawn
+			$mg_inferior disablespawn
+			$mg_superior disablespawn
+			$torrefondo disablespawn
+			$pasillosur disablespawn
+			$torrespawn disablespawn
+			break
+		}
+		waitframe
+	}
+end
+
+//=============================================================================
+
+tunel_cambia_spawn:
+	while(1) {
+		self waittill trigger
+		if(parm.other.dmteam == allies) {
+			if(self == $tunel_trigger)
+			$tunelspawn_1 disablespawn
+			$tunelspawn_2 disablespawn
+			$tunelchange_1 enablespawn
+			$tunelchange_2 enablespawn
+			break
+		}
+		waitframe
+	}
+end
+
+//=============================================================================
+
+quemar:
+
+	if (parm.other == $player)
+	parm.other damage $world 2 $world (0 0 0) (0 0 0) (0 0 0) 0 9 0 0
+end
+
+//=============================================================================
+
+panchometro:
+
+	if (parm.other == $player)
+	iprintlnbold_noloc "The Lame-o-Meter was thrown out of scale"
+	iprintlnbold_noloc "by a very, very lame player..."
+	parm.other iprint "Where were you trying to go, you freak...?"
+	parm.other hurt 100 "CRUSH"
+end
+
+//=============================================================================
+
+documents_check:
+
+	while(1) {
+		self waittill trigger
+		if(parm.other.dmteam == allies) {
+			if( self == $documents_trigger)
+				iprintlnbold_noloc "The Allies infiltrated the bunker and"
+				iprintlnbold_noloc "stole Secret Weapons Blueprints!"
+				level.g_obj_alliedtext3 = "[X] Find Documents!"
+				println ("Documents Stolen.")
+			self playsound documents_stolen
+			self.target hide
+			$bunkerspawn_1 disablespawn
+			$bunkerspawn_2 disablespawn
+			level.targets_destroyed ++
+			thread scoretexto_update
+			break
+		}
+		waitframe
+	}
+end
+
+//=============================================================================
+
+bomb1_exploded local.bomb1:
+
+	while (local.bomb1.exploded != 1)
+
+		wait .1
+
+		iprintlnbold_noloc "The Allies reached the Rooftop and blew up the Flag!"
+		level.g_obj_alliedtext1 = "[X] Reach the Rooftop"
+		$flag_1 hide
+		thread scoretexto_update 
+end
+
+//=============================================================================
+
+arrancar_scoretexto:
+
+	level.g_obj_alliedtext1 = "[  ] Reach the Rooftop"
+	level.g_obj_alliedtext2 = "     and blow up the Flag"
+	level.g_obj_alliedtext3 = "[  ] Find Documents!"
+	level.g_obj_axistext1 = "Defend the Reichstag"
+	level.g_obj_axistext2 = "and resist at all cost"
+	level.g_obj_axistext3 = "the allied onslaught"
+	while(1) {
+		setcvar "g_obj_alliedtext1" level.g_obj_alliedtext1
+		setcvar "g_obj_alliedtext2" level.g_obj_alliedtext2
+		setcvar "g_obj_alliedtext3" level.g_obj_alliedtext3
+		setcvar "g_obj_axistext1" level.g_obj_axistext1
+		setcvar "g_obj_axistext2" level.g_obj_axistext2
+		setcvar "g_obj_axistext3" level.g_obj_axistext3
+		wait 2
+	}
+end
+
+//=============================================================================
+
+scoretexto_update:
+
+	setcvar "g_obj_alliedtext1" level.g_obj_alliedtext1
+	setcvar "g_obj_alliedtext2" level.g_obj_alliedtext2
+	setcvar "g_obj_alliedtext3" level.g_obj_alliedtext3
+	setcvar "g_obj_axistext1" level.g_obj_axistext1
+	setcvar "g_obj_axistext2" level.g_obj_axistext2
+	setcvar "g_obj_axistext3" level.g_obj_axistext3
+end
+
+//=============================================================================
+
+documents_random_location:
+
+	local.location_index = ((randomint 4) + 1)
+	local.location = $("documents_location" + local.location_index)
+	local.base = $documents_location1
+	local.movement_offset = local.location.origin - local.base.origin
+
+	$documents.origin += local.movement_offset
+	$documents_trigger.origin += local.movement_offset
+end

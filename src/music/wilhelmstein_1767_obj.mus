@@ -1,0 +1,6 @@
+path sound/amb_stereo
+
+normal Amb_M5_TownExt_2.mp3 // Plays over entire level
+
+!normal volume 1
+!normal loop

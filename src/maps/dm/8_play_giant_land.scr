@@ -1,0 +1,29 @@
+// 8_play_giant_land
+// ARCHITECTURE: AK-47
+// SCRIPTING: AK-47 
+
+main:
+
+// set scoreboard messages
+setcvar "g_obj_alliedtext1" "8_play_giant_land" 
+setcvar "g_obj_alliedtext2" "by"
+setcvar "g_obj_alliedtext3" "AK-47"
+setcvar "g_obj_axistext1" ""
+setcvar "g_obj_axistext2" ""
+setcvar "g_obj_axistext3" ""
+
+setcvar "g_scoreboardpic" "8_play_giant_land.tga"
+
+
+level waitTill prespawn
+
+
+
+//*** Precache Dm Stuff
+exec global/DMprecache.scr
+
+level.script = maps/dm/8_play_giant_land.scr
+
+level waittill spawn
+
+end

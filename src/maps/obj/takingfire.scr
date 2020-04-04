@@ -1,0 +1,64 @@
+main:
+
+	level waittill prespawn
+
+	exec global/DMprecache.scr
+
+	level.script = maps/obj/takingfire.scr
+	exec global/ambient.scr m4l1
+
+	exec global/door_locked.scr::lock
+
+	setcvar "g_obj_alliedtext1" "Infiltrate and Clear the area" 
+	setcvar "g_obj_alliedtext2" ""
+	setcvar "g_obj_alliedtext3" ""
+	setcvar "g_obj_axistext1" "Survive"
+	setcvar "g_obj_axistext2" ""
+	setcvar "g_obj_axistext3" ""
+	setcvar "g_scoreboardpic" "none"
+
+	level waittill spawn
+
+	level.bomb_damage = 200
+	level.bomb_explosion_radius = 640
+	level.defusing_team = "axis"
+	level.planting_team = "allies"
+	level.targets_to_destroy = 1
+	level.dmrespawning = 0 // 1 or 0
+	level.dmroundlimit = 5 // round time limit in minutes
+	level.clockside = axis // set to axis, allies, kills, or draw
+
+	level waittill roundstart
+
+	$flak88_explosive1 thread global/obj_dm.scr::bomb_thinker
+	
+
+	$flak88_explosive1 thread axis_win_timer
+	thread allies_win_bomb
+	
+
+	end
+
+//*** --------------------------------------------
+//*** "Axis Victory"
+//*** --------------------------------------------
+
+axis_win_timer:
+
+	level waittill axiswin
+
+end
+
+//*** --------------------------------------------
+//*** "Allied Victory"
+//*** --------------------------------------------
+
+allies_win_bomb:
+
+	while(level.targets_destroyed < level.targets_to_destroy)
+		waitframe
+	
+	teamwin allies
+end
+
+

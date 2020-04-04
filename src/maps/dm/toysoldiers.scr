@@ -1,0 +1,24 @@
+// Toy Soldiers
+// Author: Voxel
+// Web: www.planetmedalofhonor.com/vg
+	
+main:
+
+level waittill prespawn
+
+	//*** Precache Dm Stuff
+	exec global/DMprecache.scr
+
+	level.script = maps/dm/toysoldiers.scr
+	exec global/ambient.scr
+
+	setcvar "g_obj_alliedtext1" "Toy Soldiers - BETA"
+	setcvar "g_obj_alliedtext2" "Map by Voxel"
+	setcvar "g_obj_alliedtext3" "planetmedalofhonor.com/vg"
+	setcvar "g_obj_axistext1"" "
+	setcvar "g_obj_axistext2"" "
+	setcvar "g_obj_axistext3"" "
+	setcvar "g_scoreboardpic" "toysoldiers.tga"
+
+end
+

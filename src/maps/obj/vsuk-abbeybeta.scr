@@ -1,0 +1,76 @@
+// VS-UK Abbey Assault
+// ARCHITECTURE: Kingmarzo (Dave Marsden)
+// SCRIPTING: Kingmarzo (Dave Marsden)
+
+main:
+
+setcvar "g_obj_alliedtext1" " Destroy the Radio" 
+setcvar "g_obj_alliedtext2" " Room"
+setcvar "g_obj_alliedtext3" " Destroy Radio Mast"
+
+setcvar "g_obj_axistext1" " Defend the Radio"
+setcvar "g_obj_axistext2" " Room and Radio"
+setcvar "g_obj_axistext3" " Mast"
+
+setcvar "g_scoreboardpic" "vsuk-abbeybeta"
+
+	level waittill prespawn
+
+	//*** Precache Dm Stuff
+	exec global/DMprecache.scr
+	
+	
+		
+	
+	level.script = maps/obj/vsuk-abbeybeta.scr
+	exec global/ambient.scr m3l2
+	
+	exec global/door_locked.scr::lock
+	thread global/exploder.scr::main
+	
+
+	level waittill spawn 
+
+	level.defusing_team = "axis"
+	level.planting_team = "allies"
+	level.bomb_damage = 200
+	level.bomb_explosion_radius = 2048
+
+	// set the parameters for round based match
+	level.dmrespawning = 0 // 1 or 0
+	level.dmroundlimit = 5 // round time limit in minutes
+	level.clockside = axis // set to axis, allies, kills, or draw
+
+	// level waittill roundstart
+	
+			
+		
+		$mast_explode thread global/obj_dm.scr::bomb_thinker
+		$ctrlroom_explode thread global/obj_dm.scr::bomb_thinker
+		
+		thread allies_win_bomb $mast_explode $ctrlroom_explode
+		$mast_explode thread axis_win_timer
+		
+//		thread objectives_setup
+end
+
+
+allies_win_bomb local.bomb1 local.bomb2:
+
+	while (local.bomb1.exploded != 1)
+		wait .1
+	while (local.bomb2.exploded != 1)
+		wait .1
+
+	teamwin allies
+end
+
+//*** --------------------------------------------
+//*** "Axis Victory"
+//*** --------------------------------------------
+
+axis_win_timer:
+
+	level waittill axiswin
+
+end

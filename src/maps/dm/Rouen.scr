@@ -1,0 +1,28 @@
+// Rouen
+// ARCHITECTURE: Joe Schmied	
+// SCRIPTING: Joe Schmied
+
+main:
+
+// set scoreboard messages
+setcvar "g_obj_alliedtext1" ""
+setcvar "g_obj_alliedtext2" ""
+setcvar "g_obj_alliedtext3" ""
+setcvar "g_obj_axistext1" ""
+setcvar "g_obj_axistext2" ""
+setcvar "g_obj_axistext3" ""
+
+setcvar "g_scoreboardpic" "none" // your score board picture
+
+level waittill prespawn
+
+exec global/DMprecache.scr
+
+level.script = "maps/dm/multi.scr" 
+// remember to put in your map name
+
+level waittill spawn
+
+//add more codes here after you add more features to your maps
+
+end

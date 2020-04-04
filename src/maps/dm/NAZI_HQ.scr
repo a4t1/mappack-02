@@ -1,0 +1,44 @@
+// NAZI_HQ
+
+main:
+
+// set scoreboard messages
+setcvar "g_obj_alliedtext1" "NAZI_HQ"
+setcvar "g_obj_alliedtext2" ""
+setcvar "g_obj_alliedtext3" ""
+setcvar "g_obj_axistext1" ""
+setcvar "g_obj_axistext2" ""
+setcvar "g_obj_axistext3" ""
+
+setcvar "g_scoreboardpic" "NAZI"
+
+                   
+	level waitTill prespawn
+
+	//*** Precache Dm Stuff
+	exec global/DMprecache.scr
+	exec global/ambient.scr m5l1b
+	level.script = maps/dm/NAZI_HQ.scr
+
+	level waittill spawn
+
+end
+
+//-----------------------------------------------------------------------------
+
+roundbasedthread:
+
+	// Can specify different scoreboard messages for round based games here.
+	
+	level waitTill prespawn
+
+	level waittill spawn
+
+	// set the parameters for this round based match
+	level.dmrespawning =1 // 1 or 0
+	level.dmroundlimit = 5 // round time limit in minutes
+	level.clockside = kills // set to axis, allies, kills, or draw
+
+	level waittill roundstart
+
+end
